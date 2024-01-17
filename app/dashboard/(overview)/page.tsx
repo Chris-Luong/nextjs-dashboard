@@ -1,4 +1,5 @@
 import CardWrapper from '@/app/ui/dashboard/cards';
+// So you don't need to suspened multiple card components
 import RevenueChart from '@/app/ui/dashboard/revenue-chart';
 import LatestInvoices from '@/app/ui/dashboard/latest-invoices';
 import { lusitana } from '@/app/ui/fonts';
