@@ -1,4 +1,9 @@
 'use server';
+/**
+ * NOTE: Server actions - run async code on server so you don't need to create API endpoints
+ * to mutate data. These fns execute on server and can be invoked in client & server
+ * components. More secure.
+ */
 
 import { z } from 'zod'; // type validation
 import { sql } from '@vercel/postgres';
@@ -15,6 +20,7 @@ const FormSchema = z.object({
 });
 
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
+const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
 export async function createInvoice(formData: FormData) {
   // Extract data from formData
@@ -36,4 +42,23 @@ export async function createInvoice(formData: FormData) {
   redirect('/dashboard/invoices');
   // Test it out:
   //   console.log(rawFormData);
+}
+
+export async function updateInvoice(id: string, formData: FormData) {
+  const { customerId, amount, status } = UpdateInvoice.parse({
+    customerId: formData.get('customerId'),
+    amount: formData.get('amount'),
+    status: formData.get('status'),
+  });
+
+  const amountInCents = amount * 100;
+
+  await sql`
+    UPDATE invoices
+    SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
+    WHERE id = ${id}
+  `;
+
+  revalidatePath('/dashboard/invoices');
+  redirect('/dashboard/invoices');
 }
